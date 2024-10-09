@@ -1,5 +1,5 @@
 import os
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect,Response,url_for
 from werkzeug.utils import secure_filename
 import ImageSlidingAndHandTracking as imgsliding
 app = Flask(__name__)
@@ -29,7 +29,21 @@ def upload_files():
     filename = secure_filename(file.filename)
     file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
-  imgsliding.start()
+  # Redirect to the presentation page after upload
+  return redirect(url_for('presentation'))
+
+@app.route('/video_feed')
+def video_feed():
+    return Response(imgsliding.gen_frames_main(), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+@app.route('/presentation')
+def presentation():
+  # Presentation page with video feed
+  return render_template('presentation.html')
+
+@app.route('/thankyou')
+def thank_you():
+  # Thank you page
   return render_template('thankyou.html')
 
 if not os.path.exists(UPLOAD_FOLDER):
