@@ -15,7 +15,6 @@ def index():
 def upload_files():
   files = request.files.getlist('files[]')
   files1 = request.files.getlist('files[]')
-  print(files)
 
   if not files:
     return redirect(request.url)
@@ -25,7 +24,6 @@ def upload_files():
     files = os.listdir(app.config['UPLOAD_FOLDER'])
     for f in files:
       os.remove(os.path.join(app.config['UPLOAD_FOLDER'], f))
-  print(files1)
   for file in files1:
     print(file.filename)
     filename = secure_filename(file.filename)
