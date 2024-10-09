@@ -11,13 +11,8 @@
         box-sizing: border-box;
       }
 
-      body {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        font-family: Arial, sans-serif;
-        position: relative;
+      #image-frame-container {
+        display: none;
       }
 
       img {
@@ -46,13 +41,86 @@
       input[type="submit"]:hover {
         background-color: #0056b3;
       }
+
+      #loader-container {
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f9;
+      }
+
+      .loader {
+        width: 50px;
+        aspect-ratio: 1;
+        display: grid;
+        border: 4px solid transparent;
+        border-radius: 50%;
+        border-right-color: #25b09b;
+        animation: l15 1s infinite linear;
+      }
+
+      .loader::before,
+      .loader::after {
+        content: "";
+        grid-area: 1/1;
+        margin: 2px;
+        border: inherit;
+        border-radius: 50%;
+        animation: l15 2s infinite;
+      }
+
+      .loader::after {
+        margin: 8px;
+        animation-duration: 3s;
+      }
+
+      @keyframes l15 {
+        100% {
+          transform: rotate(1turn);
+        }
+      }
     </style>
   </head>
   <body>
-    <img src="{{ url_for('video_feed') }}" alt="Live Video Stream" />
+    <!-- Loader element to show while video is loading -->
+    <div id="loader-container">
+      <div class="loader"></div>
+    </div>
 
-    <form action="/thankyou" method="GET">
-      <input type="submit" value="Finish Presentation" />
-    </form>
+    <div id="image-frame-container">
+      <img
+        id="video-stream"
+        src="{{ url_for('video_feed') }}"
+        alt="Live Video Stream"
+      />
+
+      <form action="/thankyou" method="GET">
+        <input type="submit" value="Finish Presentation" />
+      </form>
+    </div>
+
+    <script>
+      window.onload = function () {
+        const videoStream = document.getElementById("video-stream");
+        const loader = document.getElementById("loader-container");
+        const imageFrameContainer = document.getElementById(
+          "image-frame-container"
+        );
+
+        // Poll for changes in the video stream source
+        const checkStreamLoaded = setInterval(() => {
+          if (videoStream.complete && videoStream.naturalHeight !== 0) {
+            // Video stream has started, hide the loader and show the video
+            loader.style.display = "none";
+            imageFrameContainer.style.display = "block";
+            clearInterval(checkStreamLoaded);
+          }
+        }, 100);
+      };
+    </script>
   </body>
 </html>
