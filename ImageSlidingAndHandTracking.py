@@ -3,6 +3,7 @@ import cv2
 import os
 import numpy as np
 import dlib
+import time
 
 def gen_frames_main():
     # Parameters
@@ -22,6 +23,11 @@ def gen_frames_main():
     predictor = dlib.shape_predictor('shape_predictor_68_face_landmarks.dat')
     rotation_threshold = 10  # degrees for left and right rotation
     
+    # Cooldown period for face rotation-triggered slide changes
+    face_rotation_cooldown = 1  # cooldown period in seconds
+    last_rotation_time = 0  # tracks the last time a face rotation triggered a slide change
+    rotation_state = None  # tracks the current rotation state (left, right, or centered)
+
     # Doubly Linked List class for image nodes
     class ImageNode:
         def __init__(self, imgNumber):
@@ -110,7 +116,7 @@ def gen_frames_main():
                 if annotationStart is False:
                     annotationStart = True
                     annotationNumber += 1
-                    annotations.append([])
+                    annotations.append([])  # Start a new annotation
                 annotations[annotationNumber].append(indexFinger)
                 cv2.circle(imgCurrent, indexFinger, 12, (0, 0, 255), cv2.FILLED)
             else:
@@ -144,12 +150,13 @@ def gen_frames_main():
         h, w, _ = imgCurrent.shape
         imgCurrent[0:hs, w - ws: w] = imgSmall
 
-        # Face Rotation Detection code
+        # Face Rotation Detection
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         faces = detector(gray)
+        current_time = time.time()
+
         for face in faces:
             landmarks = predictor(gray, face)
-
             left_eye = landmarks.part(36)
             right_eye = landmarks.part(45)
 
@@ -158,24 +165,31 @@ def gen_frames_main():
             angle = np.degrees(np.arctan2(dy, dx))
 
             rotation_direction = "Centered"
-            if angle < -rotation_threshold:
-                #left rotate means you are tring to go next slides
+            
+            if angle < -rotation_threshold and rotation_state != "Left":
                 rotation_direction = "Left Rotated"
-                if current_imgNumber_node.next is not None:
+                if current_imgNumber_node.next is not None and current_time - last_rotation_time > face_rotation_cooldown:
                     current_imgNumber_node = current_imgNumber_node.next
                     currImageNumber = current_imgNumber_node.imgNumber
                     annotations = [[]]
                     annotationNumber = -1
                     annotationStart = False
-            if angle > rotation_threshold:
-                #right rotate means you are trying to go previous slides
+                    last_rotation_time = current_time  # Update the time of the last slide change
+                    rotation_state = "Left"  # Mark the current state
+
+            elif angle > rotation_threshold and rotation_state != "Right":
                 rotation_direction = "Right Rotated"
-                if current_imgNumber_node.prev is not None:
+                if current_imgNumber_node.prev is not None and current_time - last_rotation_time > face_rotation_cooldown:
                     current_imgNumber_node = current_imgNumber_node.prev
                     currImageNumber = current_imgNumber_node.imgNumber
                     annotations = [[]]
                     annotationNumber = -1
                     annotationStart = False
+                    last_rotation_time = current_time  # Update the time of the last slide change
+                    rotation_state = "Right"  # Mark the current state
+
+            else:
+                rotation_state = "Centered"  # Reset state if no rotation is detected
 
             cv2.putText(imgCurrent, rotation_direction, (250, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2)
 
