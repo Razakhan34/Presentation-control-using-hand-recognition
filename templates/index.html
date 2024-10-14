@@ -1,96 +1,125 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
-    <title>Presentation</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Your Hero Section</title>
     <style>
       body {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
         margin: 0;
-        background-color: #f2f2f2;
+        padding: 0;
+        font-family: "Arial", sans-serif;
       }
 
-      .upload-container {
-        background-color: #fff;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-        padding: 20px;
-        box-shadow: 2 5 14px 2px rgba(0, 0, 0, 0.2);
+      .hero {
+        position: relative;
+        background: url("https://images.unsplash.com/photo-1505373877841-8d25f7d46678?q=80&w=2012&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")
+          center/cover no-repeat;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column; /* Stack content vertically */
+      }
+
+      .hero::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.6); /* Black color with 60% opacity */
+        z-index: 1; /* Ensure the overlay is behind the content */
+      }
+
+      .hero-content {
         text-align: center;
+        color: #fff;
+        z-index: 2; /* Ensure the content is on top of the overlay */
       }
 
-      .upload-container h1 {
-        font-size: 24px;
+      .hero-title {
+        font-size: 3em;
         margin-bottom: 20px;
+        animation: fadeInUp 1s ease-in-out;
       }
 
-      .file-input {
-        display: none;
+      .hero-subtitle {
+        font-size: 1.5em;
+        margin-bottom: 30px;
+        animation: fadeInUp 1s ease-in-out 0.5s;
+      }
+
+      .form-heading {
+        font-size: 2em;
+        margin: 20px 0;
+        color: #fff;
+        animation: fadeInUp 1s ease-in-out 1s;
+      }
+
+      .file-input,
+      .custom-file-input {
+        margin-top: 10px;
+        padding: 10px;
+        font-size: 1em;
+        border-radius: 5px;
+        border: none;
+        background-color: #0b8230;
+        color: #fff;
+        transition: background-color 0.3s ease-in-out;
       }
 
       .custom-file-input {
-        background-color: #007bff;
-        color: #fff;
-        border: none;
-        border-radius: 5px;
-        padding: 10px 20px;
-        font-size: 18px;
-        cursor: pointer;
-        display: inline-block;
-        margin-top: 20px;
-      }
-
-      .custom-file-input:hover {
-        background-color: #0056b3;
-      }
-
-      .custom-file-label {
-        padding: 5px 10px;
-        background-color: #eee;
-        border-radius: 5px;
         cursor: pointer;
       }
-      .center-top {
-        position: fixed;
-        top: 60px;
-        left: 50%;
-        transform: translateX(-50%);
-        text-center: center;
-        font-size: 50px;
-        background-image: linear-gradient(to left, #7a2be2, #2b0082);
-        -webkit-background-clip: text;
-        color: transparent;
-        background-clip: text;
+
+      .file-input {
+        display: block;
+        margin: 0 auto;
       }
-      .form-heading {
-        margin-bottom: 20px;
+
+      .custom-file-input:hover,
+      .file-input:hover {
+        background-color: rgb(14, 110, 44);
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
       }
     </style>
   </head>
-  <body>
-    <div class="center-top">
-      <h1>Welcome, Presenter</h1>
-    </div>
 
-    <div class="upload-container">
-      <h1 class="form-heading">
-        Upload the images that you want to use in your presentation
-      </h1>
-      <form method="POST" action="/upload" enctype="multipart/form-data">
-        <label class="custom-file-label" for="file-input">Choose files</label>
-        <input
-          type="file"
-          id="file-input"
-          name="files[]"
-          class="file-input"
-          multiple
-        />
+  <body>
+    <header class="hero">
+      <div class="hero-content">
+        <h1 class="hero-title">
+          Take a deep breath, center yourself, and let your passion speak.
+        </h1>
+        <p class="hero-subtitle">
+          Your audience is the most important part of your presentation. Focus
+          on them, not on yourself.
+        </p>
+        <h1 class="form-heading">
+          Upload the images that you want to use in your presentation
+        </h1>
         <br />
-        <input type="submit" value="Upload" class="custom-file-input" />
-      </form>
-    </div>
+        <form method="POST" action="/upload" enctype="multipart/form-data">
+          <label class="custom-file-label" for="file-input">Choose File</label>
+          <input type="file" id="file-input" name="files[]" multiple />
+          <br />
+          <br /><br />
+
+          <input type="submit" value="Upload" class="custom-file-input" />
+        </form>
+      </div>
+    </header>
   </body>
 </html>
