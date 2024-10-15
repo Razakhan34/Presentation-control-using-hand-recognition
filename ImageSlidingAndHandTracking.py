@@ -4,6 +4,9 @@ import os
 import numpy as np
 import dlib
 import time
+import speech_recognition as sr
+
+
 
 def gen_frames_main():
     # Parameters
@@ -27,6 +30,9 @@ def gen_frames_main():
     face_rotation_cooldown = 1  # cooldown period in seconds
     last_rotation_time = 0  # tracks the last time a face rotation triggered a slide change
     rotation_state = None  # tracks the current rotation state (left, right, or centered)
+    
+    # Initialize recognizer
+    recognizer = sr.Recognizer()
 
     # Doubly Linked List class for image nodes
     class ImageNode:
@@ -97,7 +103,7 @@ def gen_frames_main():
                     annotationNumber = -1
                     annotationStart = False
                     
-            # Go to next slide if pinky is shown
+            # Go to next slide if last finger is shown
             if fingers == [0, 0, 0, 0, 1]:
                 buttonPressed = True
                 if current_imgNumber_node.next is not None:
@@ -111,6 +117,47 @@ def gen_frames_main():
             if fingers == [0, 1, 1, 0, 0]:
                 cv2.circle(imgCurrent, indexFinger, 12, (0, 255, 255), cv2.FILLED)
 
+             # Start speech recognition code
+            if fingers == [1,1,1,1,1]:
+            # while True:
+                with sr.Microphone() as source:
+                    # Adjust for ambient noise, lower the duration to 0.8 seconds for faster adjustment
+                    recognizer.adjust_for_ambient_noise(source, duration=0.8)
+                    # Capture the audio with a timeout and phrase time limit for quicker response
+                    try:
+                        audio = recognizer.listen(source, timeout=2, phrase_time_limit=2)
+                        # Use Google Web Speech API to recognize speech
+                        text = recognizer.recognize_google(audio)
+                        #go to next slide
+                        if "next" in text:
+                            buttonPressed = True
+                            if current_imgNumber_node.next is not None:
+                                current_imgNumber_node = current_imgNumber_node.next
+                                currImageNumber = current_imgNumber_node.imgNumber
+                                annotations = [[]]
+                                annotationNumber = -1
+                                annotationStart = False
+                        #go to previous slide
+                        if "previous" in text:
+                            buttonPressed = True
+                            if current_imgNumber_node.prev is not None:
+                                current_imgNumber_node = current_imgNumber_node.prev
+                                currImageNumber = current_imgNumber_node.imgNumber
+                                annotations = [[]]
+                                annotationNumber = -1
+                                annotationStart = False
+                    except sr.UnknownValueError:
+                        print("Sorry, I did not understand that.")
+                    except sr.RequestError:
+                        print("Could not request results; check your network connection.")
+                    except sr.WaitTimeoutError:
+                        print("Listening timed out while waiting for phrase to start.")
+                    
+                    # Optional: Break the loop if a specific word is spoken, e.g., "exit"
+                    if text.lower() == "exit":
+                        print("Exiting the program.")
+                        break
+                
             # Annotating
             if fingers == [0, 1, 0, 0, 0]:
                 if annotationStart is False:
