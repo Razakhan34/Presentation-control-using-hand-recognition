@@ -118,8 +118,8 @@ def gen_frames_main():
                 cv2.circle(imgCurrent, indexFinger, 12, (0, 255, 255), cv2.FILLED)
 
              # Start speech recognition code
-            if fingers == [1,1,1,1,1]:
-            # while True:
+            # if fingers == [1,1,1,1,1]:
+            while True:
                 with sr.Microphone() as source:
                     # Adjust for ambient noise, lower the duration to 0.8 seconds for faster adjustment
                     recognizer.adjust_for_ambient_noise(source, duration=0.8)
