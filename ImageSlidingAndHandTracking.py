@@ -118,16 +118,18 @@ def gen_frames_main():
                 cv2.circle(imgCurrent, indexFinger, 12, (0, 255, 255), cv2.FILLED)
 
              # Start speech recognition code
-            # if fingers == [1,1,1,1,1]:
-            while True:
+            # while True:
+            if fingers == [1,1,1,1,1]:
                 with sr.Microphone() as source:
                     # Adjust for ambient noise, lower the duration to 0.8 seconds for faster adjustment
-                    recognizer.adjust_for_ambient_noise(source, duration=0.8)
+                    print("Please say something:")
+                    recognizer.adjust_for_ambient_noise(source, duration=1.0)
                     # Capture the audio with a timeout and phrase time limit for quicker response
                     try:
                         audio = recognizer.listen(source, timeout=2, phrase_time_limit=2)
                         # Use Google Web Speech API to recognize speech
                         text = recognizer.recognize_google(audio)
+                        print(text)
                         #go to next slide
                         if "next" in text:
                             buttonPressed = True
@@ -154,9 +156,9 @@ def gen_frames_main():
                         print("Listening timed out while waiting for phrase to start.")
                     
                     # Optional: Break the loop if a specific word is spoken, e.g., "exit"
-                    if text.lower() == "exit":
-                        print("Exiting the program.")
-                        break
+                    # if text.lower() == "exit":
+                    #     print("Exiting the program.")
+                    #     break
                 
             # Annotating
             if fingers == [0, 1, 0, 0, 0]:
