@@ -63,6 +63,8 @@ def gen_frames_main():
     currImageNumber = current_imgNumber_node.imgNumber
 
     # Variables
+    # initially it will be true the face rotation technique and it will be false when speech commands start
+    isFaceRotationActive = True
     imgList = []
     delay = 30
     buttonPressed = False
@@ -118,8 +120,8 @@ def gen_frames_main():
                 cv2.circle(imgCurrent, indexFinger, 12, (0, 255, 255), cv2.FILLED)
 
              # Start speech recognition code
-            # while True:
             if fingers == [1,1,1,1,1]:
+                isFaceRotationActive = False
                 with sr.Microphone() as source:
                     # Adjust for ambient noise, lower the duration to 0.8 seconds for faster adjustment
                     print("Please say something:")
@@ -154,11 +156,10 @@ def gen_frames_main():
                         print("Could not request results; check your network connection.")
                     except sr.WaitTimeoutError:
                         print("Listening timed out while waiting for phrase to start.")
-                    
-                    # Optional: Break the loop if a specific word is spoken, e.g., "exit"
-                    # if text.lower() == "exit":
-                    #     print("Exiting the program.")
-                    #     break
+                        
+                    finally:
+                        isFaceRotationActive = True
+                        
                 
             # Annotating
             if fingers == [0, 1, 0, 0, 0]:
@@ -194,53 +195,56 @@ def gen_frames_main():
                 if j != 0:
                     cv2.line(imgCurrent, annotation[j - 1], annotation[j], (0, 0, 200), 12)
 
+        
         # Display Hand Gesture in small corner window
         imgSmall = cv2.resize(img, (ws, hs))
         h, w, _ = imgCurrent.shape
         imgCurrent[0:hs, w - ws: w] = imgSmall
 
+        # for using globbaly if the presentation start
         # Face Rotation Detection
-        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        faces = detector(gray)
-        current_time = time.time()
+        if isFaceRotationActive:
+            gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+            faces = detector(gray)
+            current_time = time.time()
 
-        for face in faces:
-            landmarks = predictor(gray, face)
-            left_eye = landmarks.part(36)
-            right_eye = landmarks.part(45)
+            for face in faces:
+                landmarks = predictor(gray, face)
+                left_eye = landmarks.part(36)
+                right_eye = landmarks.part(45)
 
-            dx = right_eye.x - left_eye.x
-            dy = right_eye.y - left_eye.y
-            angle = np.degrees(np.arctan2(dy, dx))
+                dx = right_eye.x - left_eye.x
+                dy = right_eye.y - left_eye.y
+                angle = np.degrees(np.arctan2(dy, dx))
 
-            rotation_direction = "Centered"
-            
-            if angle < -rotation_threshold and rotation_state != "Left":
-                rotation_direction = "Left Rotated"
-                if current_imgNumber_node.next is not None and current_time - last_rotation_time > face_rotation_cooldown:
-                    current_imgNumber_node = current_imgNumber_node.next
-                    currImageNumber = current_imgNumber_node.imgNumber
-                    annotations = [[]]
-                    annotationNumber = -1
-                    annotationStart = False
-                    last_rotation_time = current_time  # Update the time of the last slide change
-                    rotation_state = "Left"  # Mark the current state
+                rotation_direction = "Centered"
+                
+                if angle < -rotation_threshold and rotation_state != "Left":
+                    rotation_direction = "Left Rotated"
+                    if current_imgNumber_node.next is not None and current_time - last_rotation_time > face_rotation_cooldown:
+                        current_imgNumber_node = current_imgNumber_node.next
+                        currImageNumber = current_imgNumber_node.imgNumber
+                        annotations = [[]]
+                        annotationNumber = -1
+                        annotationStart = False
+                        last_rotation_time = current_time  # Update the time of the last slide change
+                        rotation_state = "Left"  # Mark the current state
 
-            elif angle > rotation_threshold and rotation_state != "Right":
-                rotation_direction = "Right Rotated"
-                if current_imgNumber_node.prev is not None and current_time - last_rotation_time > face_rotation_cooldown:
-                    current_imgNumber_node = current_imgNumber_node.prev
-                    currImageNumber = current_imgNumber_node.imgNumber
-                    annotations = [[]]
-                    annotationNumber = -1
-                    annotationStart = False
-                    last_rotation_time = current_time  # Update the time of the last slide change
-                    rotation_state = "Right"  # Mark the current state
+                elif angle > rotation_threshold and rotation_state != "Right":
+                    rotation_direction = "Right Rotated"
+                    if current_imgNumber_node.prev is not None and current_time - last_rotation_time > face_rotation_cooldown:
+                        current_imgNumber_node = current_imgNumber_node.prev
+                        currImageNumber = current_imgNumber_node.imgNumber
+                        annotations = [[]]
+                        annotationNumber = -1
+                        annotationStart = False
+                        last_rotation_time = current_time  # Update the time of the last slide change
+                        rotation_state = "Right"  # Mark the current state
 
-            else:
-                rotation_state = "Centered"  # Reset state if no rotation is detected
+                else:
+                    rotation_state = "Centered"  # Reset state if no rotation is detected
 
-            cv2.putText(imgCurrent, rotation_direction, (250, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2)
+                cv2.putText(imgCurrent, rotation_direction, (250, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2)
 
         # Encode and yield the final frame
         ret1, buffer1 = cv2.imencode('.jpg', imgCurrent)
