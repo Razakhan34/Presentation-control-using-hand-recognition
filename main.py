@@ -3,6 +3,7 @@ from flask import Flask, render_template, request, redirect,Response,url_for
 from werkzeug.utils import secure_filename
 import ImageSlidingAndHandTracking as imgsliding
 app = Flask(__name__)
+import os
 
 UPLOAD_FOLDER = 'presentation'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -48,5 +49,11 @@ def thank_you():
 
 if not os.path.exists(UPLOAD_FOLDER):
   os.makedirs(UPLOAD_FOLDER)
+  
+  
+# if __name__ == "__main__":
+#     app.run(debug=True)
+
 if __name__ == "__main__":
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port, debug=True)
