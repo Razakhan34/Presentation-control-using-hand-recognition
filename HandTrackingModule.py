@@ -74,11 +74,6 @@ class HandDetector:
         return allHands, img
 
     def fingersUp(self, myHand):
-        """
-        Finds how many fingers are open and returns in a list.
-        Considers left and right hands separately
-        :return: List of which fingers are up
-        """
         fingers = []
         myHandType = myHand["type"]
         myLmList = myHand["lmList"]
@@ -105,15 +100,6 @@ class HandDetector:
         return fingers
 
     def findDistance(self, p1, p2, img=None, color=(255, 0, 255), scale=5):
-        """
-        Find the distance between two landmarks input should be (x1,y1) (x2,y2)
-        :param p1: Point1 (x1,y1)
-        :param p2: Point2 (x2,y2)
-        :param img: Image to draw output on. If no image input output img is None
-        :return: Distance between the points
-                 Image with output drawn
-                 Line information
-        """
 
         x1, y1 = p1
         x2, y2 = p2

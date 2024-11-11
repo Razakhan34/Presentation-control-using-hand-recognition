@@ -6,8 +6,6 @@ import dlib
 import time
 import speech_recognition as sr
 
-
-
 def gen_frames_main():
     # Parameters
     width, height = 1280, 720
