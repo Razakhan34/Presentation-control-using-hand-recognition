@@ -60,11 +60,9 @@ def video_upload():
     # Redirect to the presentation page or another endpoint after upload
     return redirect(url_for('video_presentation'))
 
-
 @app.route('/video_feed')
 def video_feed():
     return Response(imgsliding.gen_frames_main(), mimetype='multipart/x-mixed-replace; boundary=frame')
-
 
 @app.route('/video_feed_for_videos')
 def video_feed_for_videos():
