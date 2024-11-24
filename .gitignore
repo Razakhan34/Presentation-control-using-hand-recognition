@@ -4,3 +4,4 @@ __pycache__
 .env
 Hand_detection_model
 env
+model_code_and_model
