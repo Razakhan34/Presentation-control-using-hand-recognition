@@ -119,6 +119,23 @@
 
           <input type="submit" value="Upload" class="custom-file-input" />
         </form>
+
+        <h1 class="form-heading">
+          Upload the Video that you want to use in your presentation
+        </h1>
+        <br />
+        <form
+          method="POST"
+          action="/video_upload"
+          enctype="multipart/form-data"
+        >
+          <label class="custom-file-label" for="file-input">Choose File</label>
+          <input type="file" id="file-input" name="files[]" multiple />
+          <br />
+          <br /><br />
+
+          <input type="submit" value="Upload" class="custom-file-input" />
+        </form>
       </div>
     </header>
   </body>
