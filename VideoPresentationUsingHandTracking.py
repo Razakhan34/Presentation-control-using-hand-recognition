@@ -38,20 +38,26 @@ def gen_video_frames_main():
         print("Error: Cannot open video file")
         return
 
+    isPlaying = True  # Flag to track play/pause state
+
     while True:
         # Get image frame
         success, img = img_cap.read()
         img = cv2.flip(img, 1)
 
-        # Read the video frame
-        success, frame = cap.read()
-        if not success:  # If the video ends, go to the next one
-            videoIndex = (videoIndex + 1) % len(videoPaths)  # Loop through videos
-            cap.release()  # Release the current video capture
-            cap = cv2.VideoCapture(videoPaths[videoIndex])  # Open the next video
-            if not cap.isOpened():
-                print("Error: Cannot open next video file")
-                break
+        if isPlaying:
+            # Read the video frame if playing
+            success, frame = cap.read()
+            if not success:  # If the video ends, go to the next one
+                videoIndex = (videoIndex + 1) % len(videoPaths)  # Loop through videos
+                cap.release()  # Release the current video capture
+                cap = cv2.VideoCapture(videoPaths[videoIndex])  # Open the next video
+                if not cap.isOpened():
+                    print("Error: Cannot open next video file")
+                    break
+        else:
+            # If paused, show the last frame
+            frame = cv2.resize(frame, (width, height))
 
         frame = cv2.resize(frame, (width, height))
 
@@ -64,6 +70,25 @@ def gen_video_frames_main():
             fingers = detectorHand.fingersUp(hand)  # List of which fingers are up
 
             indexFinger = lmList[8][0], lmList[8][1]
+
+            # Play/Pause Gesture - Peace sign (index and middle fingers up)
+            if fingers == [0, 0, 1, 1, 1]:
+                isPlaying = not isPlaying  # Toggle play/pause
+                buttonPressed = True
+                
+            # Forward 5 seconds if four fingers are up
+            if fingers == [0, 1, 1, 1, 1]:
+                buttonPressed = True
+                current_position = cap.get(cv2.CAP_PROP_POS_MSEC)  # Get current position in milliseconds
+                cap.set(cv2.CAP_PROP_POS_MSEC, current_position + 5000)  # Move forward by 5000 ms (5 seconds)
+
+            # Rewind 5 seconds if all five fingers are up
+            if fingers == [1, 1, 1, 1, 1]:
+                buttonPressed = True
+                current_position = cap.get(cv2.CAP_PROP_POS_MSEC)  # Get current position in milliseconds
+                new_position = max(0, current_position - 5000)  # Move back by 5000 ms (ensure it doesn't go negative)
+                cap.set(cv2.CAP_PROP_POS_MSEC, new_position)
+
 
             # Go to prev video if thumb is shown
             if fingers == [1, 0, 0, 0, 0]:
@@ -134,4 +159,4 @@ def gen_video_frames_main():
         ret, buffer = cv2.imencode('.jpg', frame)
         frameImage = buffer.tobytes()
         yield (b'--frame\r\n'
-                b'Content-Type: image/jpeg\r\n\r\n' + frameImage + b'\r\n')
+                b'Content-Type: image/jpeg\r\n\r\n' + frameImage + b'\r\n') 

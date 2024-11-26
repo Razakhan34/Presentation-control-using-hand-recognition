@@ -19,7 +19,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        flex-direction: column; /* Stack content vertically */
+        flex-direction: column;
       }
 
       .hero::before {
@@ -29,33 +29,36 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background-color: rgba(0, 0, 0, 0.6); /* Black color with 60% opacity */
-        z-index: 1; /* Ensure the overlay is behind the content */
+        background-color: rgba(0, 0, 0, 0.6);
+        z-index: 1;
       }
 
       .hero-content {
         text-align: center;
         color: #fff;
-        z-index: 2; /* Ensure the content is on top of the overlay */
+        z-index: 2;
       }
 
-      .hero-title {
-        font-size: 3em;
-        margin-bottom: 20px;
-        animation: fadeInUp 1s ease-in-out;
+      .form-container {
+        display: flex;
+        justify-content: center;
+        gap: 50px; /* Add spacing between the two forms */
+        flex-wrap: wrap; /* Allow wrapping on smaller screens */
+        margin-top: 20px;
       }
 
-      .hero-subtitle {
-        font-size: 1.5em;
-        margin-bottom: 30px;
-        animation: fadeInUp 1s ease-in-out 0.5s;
+      .form-box {
+        background-color: rgba(255, 255, 255, 0.1);
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        width: 300px;
+        text-align: center;
       }
 
       .form-heading {
-        font-size: 2em;
-        margin: 20px 0;
-        color: #fff;
-        animation: fadeInUp 1s ease-in-out 1s;
+        font-size: 1.5em;
+        margin: 10px 0;
       }
 
       .file-input,
@@ -74,25 +77,9 @@
         cursor: pointer;
       }
 
-      .file-input {
-        display: block;
-        margin: 0 auto;
-      }
-
       .custom-file-input:hover,
       .file-input:hover {
         background-color: rgb(14, 110, 44);
-      }
-
-      @keyframes fadeInUp {
-        from {
-          opacity: 0;
-          transform: translateY(20px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
       }
     </style>
   </head>
@@ -107,35 +94,42 @@
           Your audience is the most important part of your presentation. Focus
           on them, not on yourself.
         </p>
-        <h1 class="form-heading">
-          Upload the images that you want to use in your presentation
-        </h1>
-        <br />
-        <form method="POST" action="/upload" enctype="multipart/form-data">
-          <label class="custom-file-label" for="file-input">Choose File</label>
-          <input type="file" id="file-input" name="files[]" multiple />
-          <br />
-          <br /><br />
 
-          <input type="submit" value="Upload" class="custom-file-input" />
-        </form>
+        <div class="form-container">
+          <!-- Image Upload Form -->
+          <div class="form-box">
+            <h1 class="form-heading">
+              Upload the images that you want to use in your presentation
+            </h1>
+            <form method="POST" action="/upload" enctype="multipart/form-data">
+              <label class="custom-file-label" for="file-input"
+                >Choose File</label
+              >
+              <input type="file" id="file-input" name="files[]" multiple />
+              <br /><br />
+              <input type="submit" value="Upload" class="custom-file-input" />
+            </form>
+          </div>
 
-        <h1 class="form-heading">
-          Upload the Video that you want to use in your presentation
-        </h1>
-        <br />
-        <form
-          method="POST"
-          action="/video_upload"
-          enctype="multipart/form-data"
-        >
-          <label class="custom-file-label" for="file-input">Choose File</label>
-          <input type="file" id="file-input" name="files[]" multiple />
-          <br />
-          <br /><br />
-
-          <input type="submit" value="Upload" class="custom-file-input" />
-        </form>
+          <!-- Video Upload Form -->
+          <div class="form-box">
+            <h1 class="form-heading">
+              Upload the Video that you want to use in your presentation
+            </h1>
+            <form
+              method="POST"
+              action="/video_upload"
+              enctype="multipart/form-data"
+            >
+              <label class="custom-file-label" for="file-input"
+                >Choose File</label
+              >
+              <input type="file" id="file-input" name="files[]" multiple />
+              <br /><br />
+              <input type="submit" value="Upload" class="custom-file-input" />
+            </form>
+          </div>
+        </div>
       </div>
     </header>
   </body>
