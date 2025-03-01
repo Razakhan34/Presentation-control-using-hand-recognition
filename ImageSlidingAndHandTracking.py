@@ -118,6 +118,24 @@ def gen_frames_main():
                 cv2.circle(imgCurrent, indexFinger, 12, (0, 255, 255), cv2.FILLED)
 
              # Start speech recognition code
+            # Normalized lists of possible commands
+            next_slides = [
+                "next slide","Agla Slide","aghla slide","aghhla slide","aggla slide", "Pudchi Slide", "Aagli Slide", "Poroborti Slide", 
+                "Adutha Slide", "Taruvati Slide", "Mundina Slide", "Parabarti Slide",
+                "Pudcho Slide", "Dougat Slide", "Aghla Pattika", "Agiyo Slide"
+            ]
+            previous_slides = [
+                "previous slide","Pichla Slide", "Magchi Slide", "Pachli Slide", "Ager Slide", 
+                "Munna Slide", "Mundhu Slide", "Hindina Slide", "Munpu Slide", 
+                "Purbaru Slide", "Pichla Slide", "Aga Slide", "Magcho Slide", 
+                "Anouba Slide", "Poorva Pattika", "Pehla Slide"
+            ]
+            
+            # Normalize the lists (convert to lowercase for case-insensitive matching)
+            next_slides_normalized = [cmd.lower() for cmd in next_slides]
+            previous_slides_normalized = [cmd.lower() for cmd in previous_slides]
+            
+            
             if fingers == [1,1,1,1,1]:
                 isFaceRotationActive = False
                 with sr.Microphone() as source:
@@ -128,26 +146,33 @@ def gen_frames_main():
                     try:
                         audio = recognizer.listen(source, timeout=2, phrase_time_limit=2)
                         # Use Google Web Speech API to recognize speech
-                        text = recognizer.recognize_google(audio)
+                        text = recognizer.recognize_google(audio).lower()
                         print(text)
-                        #go to next slide
-                        if "next" in text:
-                            buttonPressed = True
-                            if current_imgNumber_node.next is not None:
-                                current_imgNumber_node = current_imgNumber_node.next
-                                currImageNumber = current_imgNumber_node.imgNumber
-                                annotations = [[]]
-                                annotationNumber = -1
-                                annotationStart = False
-                        #go to previous slide
-                        if "previous" in text:
-                            buttonPressed = True
-                            if current_imgNumber_node.prev is not None:
-                                current_imgNumber_node = current_imgNumber_node.prev
-                                currImageNumber = current_imgNumber_node.imgNumber
-                                annotations = [[]]
-                                annotationNumber = -1
-                                annotationStart = False
+                        # Go to the next slide
+                        for command in next_slides_normalized:
+                            if text in command:  # Check if the command is a substring in the recognized text
+                                buttonPressed = True
+                                print("Moving to the next slide...")
+                                if current_imgNumber_node.next is not None:
+                                    current_imgNumber_node = current_imgNumber_node.next
+                                    currImageNumber = current_imgNumber_node.imgNumber
+                                    annotations = [[]]
+                                    annotationNumber = -1
+                                    annotationStart = False
+                                break
+
+                        # Go to the previous slide
+                        for command in previous_slides_normalized:
+                            if text in command:  # Check if the command is a substring in the recognized text
+                                buttonPressed = True
+                                print("Moving to the previous slide...")
+                                if current_imgNumber_node.prev is not None:
+                                    current_imgNumber_node = current_imgNumber_node.prev
+                                    currImageNumber = current_imgNumber_node.imgNumber
+                                    annotations = [[]]
+                                    annotationNumber = -1
+                                    annotationStart = False
+                                break
                     except sr.UnknownValueError:
                         print("Sorry, I did not understand that.")
                     except sr.RequestError:
