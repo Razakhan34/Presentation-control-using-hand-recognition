@@ -100,7 +100,6 @@ class HandDetector:
         return fingers
 
     def findDistance(self, p1, p2, img=None, color=(255, 0, 255), scale=5):
-
         x1, y1 = p1
         x2, y2 = p2
         cx, cy = (x1 + x2) // 2, (y1 + y2) // 2
@@ -111,24 +110,19 @@ class HandDetector:
             cv2.circle(img, (x2, y2), scale, color, cv2.FILLED)
             cv2.line(img, (x1, y1), (x2, y2), color, max(1, scale // 3))
             cv2.circle(img, (cx, cy), scale, color, cv2.FILLED)
-
         return length, info, img
-
 
 def main():
     # Initialize the webcam to capture video
     # The '2' indicates the third camera connected to your computer; '0' would usually refer to the built-in camera
     cap = cv2.VideoCapture(0)
-
     # Initialize the HandDetector class with the given parameters
     detector = HandDetector(staticMode=False, maxHands=2, modelComplexity=1, detectionCon=0.5, minTrackCon=0.5)
-
     # Continuously get frames from the webcam
     while True:
         # Capture each frame from the webcam
         # 'success' will be True if the frame is successfully captured, 'img' will contain the frame
         success, img = cap.read()
-
         # Find hands in the current frame
         # The 'draw' parameter draws landmarks and hand outlines on the image if set to True
         # The 'flipType' parameter flips the image, making it easier for some detections
@@ -179,7 +173,5 @@ def main():
 
         # Keep the window open and update it for each frame; wait for 1 millisecond between frames
         cv2.waitKey(1)
-
-
 if __name__ == "__main__":
     main()
